@@ -1,0 +1,71 @@
+[org 0x7e00]
+
+jmp EnterProtectedMode
+
+%include "sector1/print.asm"
+%include "sector2/gdt.asm"
+
+
+EnterProtectedMode:                        ;Enter protect: disable interruts, enable a20 line, load gdt
+    call EnableA20
+    cli
+    lgdt [gdt_descripter]
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+    jmp codeseg:start_prototected_mode     ;far jump to codeseg
+
+EnableA20:
+    in al, 0x02
+    or al, 2
+    out 0x02, al
+    ret
+
+[bits 32]
+
+%include "sector2/cpu_id.asm"
+%include "sector2/simple_paging.asm"
+
+start_prototected_mode:
+    mov ax, dataseg
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    mov [0xb8000], byte 'X'
+    mov [0xb8001], byte 2
+
+    call DetectCPUID
+
+    mov [0xb8000], byte 'Y'
+    mov [0xb8001], byte 2
+
+    call DetectLongMode
+
+    mov [0xb8000], byte 'Z'
+    mov [0xb8001], byte 2
+
+    call setup_indentity_paging
+    call EditGdt
+
+    jmp codeseg:start_64_bit
+
+[bits 64]
+start_64_bit:
+    mov edi, 0xb8000
+    mov rax, 0x1f201f201f201f20                             ; 20 = space, 1f= color code
+    mov ecx, 500
+    rep stosq
+    mov [0xb8000], byte 'Y'
+    mov [0xb8001], byte 2
+    mov [0xb8002], byte 'E'
+    mov [0xb8003], byte 2
+    mov [0xb8004], byte 'S'
+    mov [0xb8005], byte 2
+    mov [0xb8006], byte 'S'
+    mov [0xb8007], byte 2
+    jmp $
+
+times 2048-($-$$) db 0                                      ;padded with 2048 bytes 
