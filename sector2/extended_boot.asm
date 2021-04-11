@@ -1,8 +1,6 @@
-[org 0x7e00]
 
 jmp EnterProtectedMode
 
-%include "sector1/print.asm"
 %include "sector2/gdt.asm"
 
 
@@ -53,19 +51,10 @@ start_prototected_mode:
     jmp codeseg:start_64_bit
 
 [bits 64]
+[extern _start]
 start_64_bit:
-    mov edi, 0xb8000
-    mov rax, 0x1f201f201f201f20                             ; 20 = space, 1f= color code
-    mov ecx, 500
-    rep stosq
-    mov [0xb8000], byte 'Y'
-    mov [0xb8001], byte 2
-    mov [0xb8002], byte 'E'
-    mov [0xb8003], byte 2
-    mov [0xb8004], byte 'S'
-    mov [0xb8005], byte 2
-    mov [0xb8006], byte 'S'
-    mov [0xb8007], byte 2
+ 
+    call _start
     jmp $
 
 times 2048-($-$$) db 0                                      ;padded with 2048 bytes 

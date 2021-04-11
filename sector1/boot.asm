@@ -2,8 +2,6 @@
 
 mov [BOOT_DISK], dl                       ;store disk loaction for later use
 
-mov bp, 0x7c00
-mov sp, bp
 
 call read_disk
 
@@ -17,3 +15,4 @@ teststring:
 times 510-($-$$) db 0
 dw 0xaa55
 
+;This initial boot is only 512 mb. Jump to bigger 'chunk' called Program space
