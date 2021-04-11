@@ -1,12 +1,15 @@
 OUTPUT_FORMAT(binary)
 
-ENTRY(_start)
+ENTRY(_kernel_start)
 
+/*
 INPUT
 (
     extended_boot.o
     kernel.o
+    io.o
 )
+*/
 
 OUTPUT
 (

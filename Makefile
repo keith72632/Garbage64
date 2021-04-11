@@ -1,4 +1,6 @@
 
+OBJ_FILES = extended_boot.o kernel.o io.o
+
 all:run
 
 boot.bin: sector1/boot.asm
@@ -10,8 +12,11 @@ extended_boot.o: sector2/extended_boot.asm
 kernel.o: kernel/kernel.cpp
 	x86_64-elf-gcc -Ttext 0x8000 -ffreestanding -mno-red-zone -m64 -c $^ -o $@
 
-kernel.bin: linker.ld extended_boot.o kernel.o
-	ld -T $<
+io.o: utils/io.cpp
+	x86_64-elf-gcc -Ttext 0x8000 -ffreestanding -mno-red-zone -m64 -c $^ -o $@
+
+kernel.bin: ${OBJ_FILES}
+	ld -T linker.ld $^
 
 os-image.bin: boot.bin kernel.bin
 	cat $^ > $@

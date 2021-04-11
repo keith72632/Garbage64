@@ -51,10 +51,10 @@ start_prototected_mode:
     jmp codeseg:start_64_bit
 
 [bits 64]
-[extern _start]
+[extern _kernel_start]
 start_64_bit:
  
-    call _start
+    call _kernel_start
     jmp $
 
 times 2048-($-$$) db 0                                      ;padded with 2048 bytes 
